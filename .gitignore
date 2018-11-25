@@ -1,0 +1,10 @@
+target
+.exercism
+.lein-failures
+.lein-repl-history
+*.beam
+.idea
+build
+.gradle
+*.iml
+*.ipr
