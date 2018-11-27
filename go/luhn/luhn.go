@@ -6,22 +6,27 @@ import (
 	"strings"
 )
 
-func isSecondDigit(idx int) bool { return idx%2 == 1 }
+func findDigitToSum(digit int, digitPos int) int {
+	if digitPos%2 == 1 {
+		var doubledDigit = digit * 2
+		if doubledDigit > 9 {
+			return doubledDigit - 9
+		}
+
+		return doubledDigit
+	}
+
+	return digit
+}
 
 func sumDigits(number string) (sum int) {
-	for reverseIdx, forwardIdx := len(number)-1, 0; reverseIdx >= 0; reverseIdx, forwardIdx = reverseIdx-1, forwardIdx+1 {
-		var digit = int(number[reverseIdx] - '0')
+	var forwardIdx int
+	for i := len(number) - 1; i >= 0; i = i - 1 {
+		var digit = int(number[i] - '0')
 
-		if isSecondDigit(forwardIdx) {
-			var doubledDigit = digit * 2
-			if doubledDigit > 9 {
-				sum += doubledDigit - 9
-			} else {
-				sum += doubledDigit
-			}
-		} else {
-			sum += digit
-		}
+		sum += findDigitToSum(digit, forwardIdx)
+
+		forwardIdx++
 	}
 
 	return sum
