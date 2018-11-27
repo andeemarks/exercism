@@ -1,20 +1,17 @@
 class HandshakeCalculator {
     companion object {
-        fun addIfMatches(i: Int, signal: Signal, mask: Int, handshake: MutableList<Signal>): MutableList<Signal> {
-            if (i and mask > 0) {
-                handshake.add(signal)
+        private fun MutableList<Signal>.addIfMatches(i: Int, signal: Signal) {
+            if (i and signal.mask > 0) {
+                this.add(signal)
             }
-
-            return handshake
-
         }
 
         fun calculateHandshake(i: Int): List<Signal> {
-            var handshake = mutableListOf<Signal>()
-            handshake = addIfMatches(i, Signal.WINK, 1, handshake)
-            handshake = addIfMatches(i, Signal.DOUBLE_BLINK, 2, handshake)
-            handshake = addIfMatches(i, Signal.CLOSE_YOUR_EYES, 4, handshake)
-            handshake = addIfMatches(i, Signal.JUMP, 8, handshake)
+            val handshake = mutableListOf<Signal>()
+            handshake.addIfMatches(i, Signal.WINK)
+            handshake.addIfMatches(i, Signal.DOUBLE_BLINK)
+            handshake.addIfMatches(i, Signal.CLOSE_YOUR_EYES)
+            handshake.addIfMatches(i, Signal.JUMP)
 
             if (i and 16 > 0) {
                 return handshake.reversed()
