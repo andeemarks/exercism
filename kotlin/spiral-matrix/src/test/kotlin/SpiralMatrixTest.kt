@@ -11,8 +11,7 @@ class SpiralMatrixTest {
         assertArrayEquals(expected, SpiralMatrix.ofSize(0))
     }
 
-    @Ignore
-    @Test
+        @Test
     fun testTrivialSpiral() {
         val expected = arrayOf(
             intArrayOf(1)
@@ -21,8 +20,7 @@ class SpiralMatrixTest {
         assertArrayEquals(expected, SpiralMatrix.ofSize(1))
     }
 
-    @Ignore
-    @Test
+        @Test
     fun testSpiralOfSize2() {
         val expected = arrayOf(
             intArrayOf(1, 2),
@@ -32,8 +30,7 @@ class SpiralMatrixTest {
         assertArrayEquals(expected, SpiralMatrix.ofSize(2))
     }
 
-    @Ignore
-    @Test
+        @Test
     fun testSpiralOfSize3() {
         val expected = arrayOf(
             intArrayOf(1, 2, 3),
@@ -44,8 +41,7 @@ class SpiralMatrixTest {
         assertArrayEquals(expected, SpiralMatrix.ofSize(3))
     }
 
-    @Ignore
-    @Test
+        @Test
     fun testSpiralOfSize4() {
         val expected = arrayOf(
             intArrayOf( 1,  2,  3,  4),
@@ -57,8 +53,7 @@ class SpiralMatrixTest {
         assertArrayEquals(expected, SpiralMatrix.ofSize(4))
     }
 
-    @Ignore
-    @Test
+        @Test
     fun testSpiralOfSize5() {
         val expected = arrayOf(
             intArrayOf( 1,  2,  3,  4,  5),
