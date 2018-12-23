@@ -1,42 +1,43 @@
 class SpiralMatrix {
     companion object {
         private var matrix: Array<IntArray> = emptyArray()
-        private var fillDirection = FillDirection.DOWN
 
         fun ofSize(n: Int): Array<IntArray> {
-            val numbers = ((n + 1)..(n * n)).toList()
-            matrix = Array(n) { IntArray(n, { it + 1 }) }
-            fillDirection = FillDirection.DOWN
-            var currentCell: Pair<Int, Int> = Pair(n - 1, 1)
-            var segmentSize = n - 1
-            var nextNumber = n + 1
-            while (segmentSize >= 1) {
-                currentCell = fillSegment(currentCell, nextNumber..(nextNumber + segmentSize - 1))
-                fillDirection = fillDirection.next
-                nextNumber += segmentSize
-
-                currentCell = fillSegment(currentCell, nextNumber..(nextNumber + segmentSize - 1))
-                fillDirection = fillDirection.next
-                nextNumber += segmentSize
-
-                segmentSize--
-            }
+            matrix = Array(n) { IntArray(n) { 0 } }
+            var context = Triple(Pair(0, 0), 1, FillDirection.RIGHT)
+            do {
+                context = fillSegment(context)
+            } while (context.nextCellValue <= n * n)
 
             return matrix
         }
 
-        private fun fillSegment(start: Pair<Int, Int>, numbers: IntRange): Pair<Int, Int> {
-            var row = start.second
-            var column = start.first
-            for (i in numbers) {
-                matrix[row][column] = i
-                row += fillDirection.yOffset
-                column += fillDirection.xOffset
-            }
-
-            return Pair(column + fillDirection.nextXStart, row + fillDirection.nextYStart)
+        private fun Array<IntArray>.isUpdatableCell(row: Int, column: Int): Boolean {
+            return (row < this.size && row >= 0) && (column < this[row].size && column >= 0) && (this[row][column] == 0)
         }
 
+        private val Triple<Pair<kotlin.Int, kotlin.Int>, kotlin.Int, FillDirection>.direction: FillDirection
+            get() = this.third
+
+        private val Triple<Pair<kotlin.Int, kotlin.Int>, kotlin.Int, FillDirection>.nextCellValue: Int
+            get() = this.second
+
+        private val Triple<Pair<kotlin.Int, kotlin.Int>, kotlin.Int, FillDirection>.currentCell: Pair<Int, Int>
+            get() = this.first
+
+        private fun fillSegment(context: Triple<Pair<Int, Int>, Int, FillDirection>): Triple<Pair<Int, Int>, Int, FillDirection> {
+            var row: Int = context.currentCell.second
+            var column: Int = context.currentCell.first
+            var nextCellValue: Int = context.nextCellValue
+            while (matrix.isUpdatableCell(row, column)) {
+                matrix[row][column] = nextCellValue
+                row += context.direction.yOffset
+                column += context.direction.xOffset
+                nextCellValue++
+            }
+
+            return Triple(Pair(column + context.direction.nextXStart, row + context.direction.nextYStart), nextCellValue, context.direction.next)
+        }
     }
 }
 
