@@ -11,6 +11,8 @@ build
 .keep/
 *.jar
 
+node_modules/**.*
+
 clojure/clojure/
 
 kotlin/kotlin/

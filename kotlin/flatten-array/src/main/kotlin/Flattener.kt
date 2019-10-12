@@ -5,7 +5,7 @@ class Flattener {
 
             recursiveFlatten(list, result)
 
-            return result.filter { i: Any? -> i != null }
+            return result.filterNotNull()
         }
 
         private fun recursiveFlatten(list: List<Any?>, result: MutableList<Any?>) {
