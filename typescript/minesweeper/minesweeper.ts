@@ -48,7 +48,7 @@ class Minesweeper {
       newBoard = newBoard.concat(board.substr(0, adjacentPosition));
     }
 
-    newBoard = newBoard.concat(this.markPosition(board[adjacentPosition]));
+    newBoard = newBoard.concat(this.annotatePosition(board[adjacentPosition]));
 
     if (adjacentPosition < board.length - 1) {
       newBoard = newBoard.concat(board.substring(adjacentPosition + 1));
@@ -57,7 +57,7 @@ class Minesweeper {
     return newBoard;
   }
 
-  markPosition(position: string): string {
+  annotatePosition(position: string): string {
     // console.log(`"${position}"`);
     if (position == " ") {
       return "1";
