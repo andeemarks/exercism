@@ -10,9 +10,20 @@ build
 *.ipr
 .keep/
 *.jar
+*.pyc
 
 node_modules/
 
 clojure/clojure/
 
 kotlin/kotlin/
+
+bin/
+
+.clj-kondo/
+.lsp/
+**/.nrepl-port
+.calva/
+obj/
+bin/
+
