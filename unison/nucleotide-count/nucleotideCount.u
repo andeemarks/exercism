@@ -1,0 +1,18 @@
+nucleotideCount.nucleotideCounts : Text -> Optional (Map Text Nat)
+nucleotideCount.nucleotideCounts nucleotides =
+  chars = Text.toCharList nucleotides
+  aCount = nucleotideCount chars ?A
+  cCount = nucleotideCount chars ?C
+  gCount = nucleotideCount chars ?G
+  tCount = nucleotideCount chars ?T
+
+  if (aCount + cCount + gCount + tCount < List.size(chars)) then
+    None
+  else
+    Some (List.toMap[("A", aCount), ("C", cCount), ("G", gCount), ("T", tCount)])
+
+nucleotideCount.nucleotideCount : [Char] -> Char -> Nat
+nucleotideCount.nucleotideCount nucleotides nucleotide = 
+  nucleotides 
+    |> List.filter (char -> char === nucleotide)
+    |> List.size

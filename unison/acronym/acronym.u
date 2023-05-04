@@ -1,0 +1,20 @@
+acronym.abbreviate : Text -> Text
+acronym.abbreviate test = 
+    words = splitWords test
+    capitalisedWords = List.map (word -> firstLetter word) words
+    Text.join "" capitalisedWords
+
+acronym.splitWords : Text -> [Text]
+acronym.splitWords sentence = 
+    Text.segmentBy isLetter sentence
+
+acronym.firstLetter : Text -> Text
+acronym.firstLetter word = 
+    firstLetter = Text.toUppercase (Text.take 1 word)
+    if Text.size word == 1 then
+        match firstLetter with
+            "A" -> firstLetter
+            "I" -> firstLetter
+            _ -> ""
+    else
+        firstLetter

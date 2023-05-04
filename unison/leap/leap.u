@@ -1,0 +1,17 @@
+leap.leap : Nat -> Boolean
+leap.leap year =
+  divisibleBy400 = (Nat.mod year 400) === 0
+  divisibleBy100 = (Nat.mod year 100) === 0
+  divisibleBy4 = (Nat.mod year 4) === 0
+
+  if divisibleBy4 then
+    if divisibleBy400 then 
+      true
+    else
+      if divisibleBy100 then 
+        false
+    else
+      true
+  else
+    false
+
