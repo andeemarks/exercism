@@ -1,0 +1,4 @@
+resolver: lts-19.27
+extra-deps:
+  - ghc-lib-parser-9.4.4.20221225@sha256:65663de2c3791f8d03fb25123ae54aaba5d0cb21262680fcfb5d07e59fb4a573,14185
+  - ghc-lib-parser-ex-9.4.0.0@sha256:a55b192642e1efd3fd3a358aff416e88b6b04f33572bd1d7be9e9008648f2523,3493

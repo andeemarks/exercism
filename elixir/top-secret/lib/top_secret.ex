@@ -1,67 +1,61 @@
 defmodule TopSecret do
   def to_ast(string) do
-    elem(Code.string_to_quoted(string, []), 1)
+    {:ok, ast} = Code.string_to_quoted(string)
+
+    ast
   end
 
-  def decode_secret_message_part(ast, acc) do
-    operation = elem(ast, 0)
-    decode(operation, ast, acc)
+  def decode_secret_message_part({node, _, fn_definition} = ast, acc)
+      when node in [:def, :defp] do
+    {ast, [parse_function_name(fn_definition) | acc]}
   end
 
-  defp format_fn_name(_, fn_arity) when fn_arity == 0 do
-    ""
-  end
+  def decode_secret_message_part(ast, acc), do: {ast, acc}
 
-  defp format_fn_name(fn_name, fn_arity) do
-    String.slice(Atom.to_string(fn_name), 0..fn_arity - 1)
-  end
-
-  defp extract_fn_arity(ast) do
-    ast |> elem(2) |> hd |> elem(2) |> length
-  end
-
-  defp extract_fn_name(ast) do
-    fn_node = ast |> elem(2) |> hd
-    fn_name = fn_node |> elem(0)
-    if fn_name == :when do
-      fn_arity = try do
-        extract_fn_arity(fn_node)
-      rescue
-        ArgumentError -> 0
-      end
-      format_fn_name(fn_node |> elem(2) |> hd |> elem(0), fn_arity)
-    else
-      fn_arity = try do
-        extract_fn_arity(ast)
-      rescue
-        ArgumentError -> 0
-      end
-      format_fn_name(fn_name, fn_arity)
+  defp parse_function_name(fn_definition) do
+    case hd(fn_definition) do
+      {:when, _, fn_body} -> parse_function_name(fn_body)
+      {fn_name, _, fn_args} -> String.slice(Atom.to_string(fn_name), 0, arity(fn_args))
     end
   end
 
-  defp decode(operation, ast, acc) when operation in [:defmodule] do
-    ast = ast |> elem(2) |> tl |> hd |> hd |> elem(1)
-    operation = ast |> elem(0)
-    decode(operation, ast, acc)
+  defp arity(nil), do: 0
+  defp arity(fn_args), do: length(fn_args)
+
+  def decode_secret_message(code) do
+    code
+    |> to_ast
+    |> decode_message_fragment
+    |> Enum.join()
   end
 
-  defp decode(operation, ast, acc) when operation in [:def, :defp] do
-    fn_name = extract_fn_name(ast)
+  defp decode_message_fragment({:defmodule, _, block_body}) do
+    {:do, module_body} = block_body |> tl |> hd |> hd
 
-    IO.inspect(fn_name)
-    {ast, [fn_name | acc]}
+    decode_message_fragment(module_body)
   end
 
-  # defp decode(operation, ast, acc) when operation in [:defmodule] do
-  #   raise(RuntimeError, "unimplemented")
-  # end
-
-  defp decode(_, ast, acc) do
-    {ast, acc}
+  defp decode_message_fragment({:__block__, _, block_body}) do
+    parse_block_body(block_body)
   end
 
-  def decode_secret_message(string) do
-    elem(decode_secret_message_part(to_ast(string), []), 1)
+  defp decode_message_fragment(module_body) when is_tuple(module_body) do
+    module_body
+    |> decode_secret_message_part([])
+    |> elem(1)
+  end
+
+  defp parse_block_body(block_body) do
+    Enum.map(block_body, &parse_block_item/1)
+  end
+
+  defp parse_block_item({:defmodule, _, _} = block_item) do
+    decode_message_fragment(block_item)
+  end
+
+  defp parse_block_item(block_item) do
+    block_item
+    |> decode_secret_message_part("")
+    |> elem(1)
   end
 end
