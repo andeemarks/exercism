@@ -4,7 +4,7 @@ abstract class Fighter {
         return false;
     }
 
-    abstract int damagePoints(Fighter fighter);
+    abstract int damagePoints(Fighter target);
 
 }
 
@@ -16,8 +16,8 @@ class Warrior extends Fighter {
     }
 
     @Override
-    int damagePoints(Fighter wizard) {
-        return wizard.isVulnerable() ? 10 : 6;
+    int damagePoints(Fighter target) {
+        return target.isVulnerable() ? 10 : 6;
     }
 }
 
@@ -35,7 +35,7 @@ class Wizard extends Fighter {
     }
 
     @Override
-    int damagePoints(Fighter warrior) {
+    int damagePoints(Fighter target) {
         return this.hasSpellPrepared ? 12 : 3;
     }
 
