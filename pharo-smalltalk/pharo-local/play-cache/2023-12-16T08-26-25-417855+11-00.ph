@@ -1,0 +1,1 @@
+Iceberg remoteTypeSelector: #httpsUrl.Metacello new baseline: 'Exercism'; repository: 'github://exercism/pharo-smalltalk:main/releases/latest'; load.#ExercismManager asClass welcome.
