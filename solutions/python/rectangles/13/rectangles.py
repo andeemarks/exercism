@@ -1,0 +1,77 @@
+CORNER = '+'
+
+def rectangles(strings: list[str]) -> int:
+    corners = _find_corners(strings)
+    
+    rectangles = set()
+    for i in range(len(corners)):
+        for j in range(i + 1, len(corners)):
+            r1, c1 = corners[i]
+            r2, c2 = corners[j]
+            
+            if r1 == r2 or c1 == c2:
+                continue
+            
+            top_left, bottom_right = _find_diagonal_corners(r1, c1, r2, c2)
+            
+            if _is_rectangle(strings, top_left, bottom_right):
+                rect = (top_left, bottom_right)
+                rectangles.add(rect)
+    
+    return len(rectangles)
+
+def _find_diagonal_corners(r1: int, c1: int, r2: int, c2: int):
+    top_left = (min(r1, r2), min(c1, c2))
+    bottom_right = (max(r1, r2), max(c1, c2))
+
+    return top_left, bottom_right
+
+def _find_corners(strings: list[str]) -> list[(int, int)]:
+    rows = len(strings)
+    cols = len(strings[0]) if strings else 0
+    
+    corners = []
+    for r in range(rows):
+        for c in range(min(cols, len(strings[r]))):
+            if strings[r][c] == CORNER:
+                corners.append((r, c))
+
+    return corners
+
+def _is_rectangle(grid: list[str], top_left: list[int], bottom_right: list[int]) -> bool:
+    tl_row, tl_col = top_left
+    br_row, br_col = bottom_right
+    
+    if not (_is_horz_side(grid, top_left, bottom_right)):
+        return False
+
+    if not (_is_vert_side(grid, top_left, bottom_right)):
+        return False
+    
+    return True
+
+def _is_vert_side(grid: list[str], top_left: list[int], bottom_right: list[int]) -> bool:
+    VERT_SIZE_CHARS = [CORNER, '|']    
+    tl_row, tl_col = top_left
+    br_row, br_col = bottom_right
+
+    for row in range(tl_row, br_row + 1):
+        if grid[row][tl_col] not in VERT_SIZE_CHARS:
+            return False
+        if grid[row][br_col] not in VERT_SIZE_CHARS:
+            return False
+
+    return True
+
+def _is_horz_side(grid: list[str], top_left: list[int], bottom_right: list[int]) -> bool:
+    HORZ_SIZE_CHARS = [CORNER, '-']    
+    tl_row, tl_col = top_left
+    br_row, br_col = bottom_right
+
+    for col in range(tl_col, br_col + 1):
+        if grid[tl_row][col] not in HORZ_SIZE_CHARS:
+            return False
+        if grid[br_row][col] not in HORZ_SIZE_CHARS:
+            return False
+
+    return True
