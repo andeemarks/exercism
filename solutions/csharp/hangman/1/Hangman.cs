@@ -1,0 +1,169 @@
+using System.Collections.Immutable;
+using System.Reactive.Subjects;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
+
+public class HangmanState
+{
+    public string MaskedWord { get; }
+    public ImmutableHashSet<char> GuessedChars { get; }
+    public int RemainingGuesses { get; }
+
+    public HangmanState(string maskedWord, ImmutableHashSet<char> guessedChars, int remainingGuesses)
+    {
+        MaskedWord = maskedWord;
+        GuessedChars = guessedChars;
+        RemainingGuesses = remainingGuesses;
+    }
+}
+
+public class TooManyGuessesException : Exception
+{
+}
+
+public class Hangman
+{
+    private readonly string _word;
+    private readonly Subject<HangmanState> _stateSubject;
+    private string _maskedWord;
+    private ImmutableHashSet<char> _guessedChars;
+    private int _remainingGuesses;
+    private bool _gameOver;
+    private HangmanState? _lastState;
+
+    public IObservable<HangmanState> StateObservable => Observable.Create<HangmanState>(observer =>
+    {
+        if (_gameOver)
+        {
+            // Game is already over, just send completion or error
+            if (!_maskedWord.Contains('_'))
+            {
+                observer.OnCompleted();
+            }
+            else
+            {
+                observer.OnError(new TooManyGuessesException());
+            }
+            return Disposable.Empty;
+        }
+        else
+        {
+            // Emit current state immediately
+            if (_lastState != null)
+            {
+                observer.OnNext(_lastState);
+            }
+            // Subscribe to future updates
+            return _stateSubject.Subscribe(observer);
+        }
+    });
+
+    public IObserver<char> GuessObserver { get; }
+
+    public Hangman(string word)
+    {
+        _word = word.ToLower();
+        _maskedWord = new string('_', word.Length);
+        _guessedChars = ImmutableHashSet<char>.Empty;
+        _remainingGuesses = 9;
+        _gameOver = false;
+        _lastState = null;
+
+        _stateSubject = new Subject<HangmanState>();
+
+        // Emit initial state
+        EmitState();
+
+        // Create observer for guesses
+        GuessObserver = new GuessObserverImpl(this);
+    }
+
+    private void OnGuess(char guess)
+    {
+        if (_gameOver) return;
+
+        guess = char.ToLower(guess);
+
+        // Check if game is already at the limit
+        if (_remainingGuesses == 0)
+        {
+            _gameOver = true;
+            _stateSubject.OnError(new TooManyGuessesException());
+            return;
+        }
+
+        // Check if already guessed
+        bool alreadyGuessed = _guessedChars.Contains(guess);
+
+        // Add to guessed chars
+        _guessedChars = _guessedChars.Add(guess);
+
+        if (alreadyGuessed)
+        {
+            // Duplicate guess - counts as failure
+            _remainingGuesses--;
+        }
+        else if (_word.Contains(guess))
+        {
+            // Correct guess - unmask letters
+            var chars = _maskedWord.ToCharArray();
+            for (int i = 0; i < _word.Length; i++)
+            {
+                if (_word[i] == guess)
+                {
+                    chars[i] = guess;
+                }
+            }
+            _maskedWord = new string(chars);
+            // Don't decrement for correct guess
+        }
+        else
+        {
+            // Wrong guess
+            _remainingGuesses--;
+        }
+
+        // Check if won
+        if (!_maskedWord.Contains('_'))
+        {
+            _gameOver = true;
+            _stateSubject.OnCompleted();
+        }
+        else
+        {
+            // Emit state only if not completed
+            EmitState();
+        }
+    }
+
+    private void EmitState()
+    {
+        _lastState = new HangmanState(_maskedWord, _guessedChars, _remainingGuesses);
+        _stateSubject.OnNext(_lastState);
+    }
+
+    private class GuessObserverImpl : IObserver<char>
+    {
+        private readonly Hangman _hangman;
+
+        public GuessObserverImpl(Hangman hangman)
+        {
+            _hangman = hangman;
+        }
+
+        public void OnNext(char value)
+        {
+            _hangman.OnGuess(value);
+        }
+
+        public void OnError(Exception error)
+        {
+            // Not used
+        }
+
+        public void OnCompleted()
+        {
+            // Not used
+        }
+    }
+}
