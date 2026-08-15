@@ -1,0 +1,20 @@
+defmodule Proverb do
+  @doc """
+  Generate a proverb from a list of strings.
+  """
+  @spec recite(strings :: [String.t()]) :: String.t()
+  def recite([]), do: ""
+  def recite(strings = [head | _tail]) do
+    verse = _recite(strings)
+    last = List.last(strings)
+    verse
+    |> String.replace("for the want of a #{last}", "for the want of a #{head}")
+  end
+  def _recite(strings = [head | tail]) when length(strings) > 1 do
+    "For want of a #{head} the #{List.first(tail)} was lost.\n" <>
+      _recite(tail)
+  end
+  def _recite(strings) when length(strings) == 1 do
+    "And all for the want of a #{List.first(strings)}.\n"
+  end
+end
