@@ -1,0 +1,32 @@
+defmodule RomanNumerals do
+  @doc """
+  Convert the number to a roman number.
+  """
+  @spec numeral(pos_integer) :: String.t()
+  def numeral(0), do: ""
+  def numeral(1), do: "I"
+  def numeral(2), do: "II"
+  def numeral(3), do: "III"
+  def numeral(4), do: "IV"
+  def numeral(5), do: "V"
+  def numeral(6), do: "VI"
+  def numeral(7), do: "VII"
+  def numeral(8), do: "VIII"
+  def numeral(9), do: "IX"
+  def numeral(number) when number >= 1000, do: _numeral(number, 1000, "M", "", "")
+  def numeral(number) when number >= 100, do: _numeral(number, 100, "C", "D", "M")
+  def numeral(number) when number >= 10, do: _numeral(number, 10, "X", "L", "C")
+
+  def _numeral(number, order, unit, mid_unit, higher_unit) do
+    result = div(number, order)
+    remainder = rem(number, order)
+    cond do
+      result < 4 -> _duplicate(unit, result) <> numeral(remainder)
+      result == 4 -> "#{unit}#{mid_unit}" <> numeral(remainder)
+      result == 9 -> "#{unit}#{higher_unit}" <> numeral(remainder)
+      true -> "#{mid_unit}" <> _duplicate(unit, result - 5) <> numeral(remainder)
+    end
+  end
+
+  defp _duplicate(char, count), do: List.duplicate(char, count) |> Enum.join()
+end
